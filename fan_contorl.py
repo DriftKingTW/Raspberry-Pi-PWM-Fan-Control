@@ -8,14 +8,14 @@ import os
 
 # Configuration
 FAN_PIN = 18            # BCM pin used to drive PWM fan
-WAIT_TIME = 3           # [s] Time to wait between each refresh
+WAIT_TIME = 1           # [s] Time to wait between each refresh
 PWM_FREQ = 25000        # [Hz] 25kHz for Noctua PWM control
 
 # Configurable temperature and fan speed
 MIN_TEMP = 40
-MAX_TEMP = 65
+MAX_TEMP = 70
 FAN_LOW = 40
-FAN_HIGH = 90
+FAN_HIGH = 100
 FAN_OFF = 0
 FAN_MAX = 100
 
