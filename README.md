@@ -1,1 +1,1 @@
-# Raspberry Pi PWM Fan Contorl
+# Raspberry Pi PWM Fan Control
