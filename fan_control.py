@@ -44,7 +44,7 @@ def handleFanSpeed():
         #print("Fan MAX") # Uncomment for testing
     # Caculate dynamic fan speed
     else:
-        step = (FAN_HIGH - FAN_LOW)/(MAX_TEMP - MIN_TEMP)   
+        step = float(FAN_HIGH - FAN_LOW)/float(MAX_TEMP - MIN_TEMP)  
         temp -= MIN_TEMP
         setFanSpeed(FAN_LOW + ( round(temp) * step ))
         #print(FAN_LOW + ( round(temp) * step )) # Uncomment for testing
