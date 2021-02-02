@@ -34,7 +34,7 @@ GPIO.add_event_detect(TACH, GPIO.FALLING, fell)
 
 try:
     while True:
-        print "%.f RPM" % rpm
+        print ("%.f RPM" % rpm)
         rpm = 0
         time.sleep(1)   # Detect every second
 
