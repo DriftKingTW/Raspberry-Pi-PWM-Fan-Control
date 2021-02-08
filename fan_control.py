@@ -12,10 +12,10 @@ WAIT_TIME = 1           # [s] Time to wait between each refresh
 PWM_FREQ = 25000        # [Hz] 25kHz for Noctua PWM control
 
 # Configurable temperature and fan speed
-MIN_TEMP = 40
+MIN_TEMP = 45
 MIN_TEMP_DEAD_BAND = 5
 MAX_TEMP = 70
-FAN_LOW = 40
+FAN_LOW = 1
 FAN_HIGH = 100
 FAN_OFF = 0
 FAN_MAX = 100
