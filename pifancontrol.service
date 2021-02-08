@@ -2,7 +2,7 @@
 Description=Service for pifancontrol
 
 [Service]
-ExecStart=/usr/local/sbin/
+ExecStart=/usr/local/sbin/fan_control.py
 Restart=on-failure
 
 [Install]
