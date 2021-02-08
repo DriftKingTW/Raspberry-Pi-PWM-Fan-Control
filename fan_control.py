@@ -25,8 +25,8 @@ outside_dead_band_higher = True
 
 # Get CPU's temperature
 def getCpuTemperature():
-    res = os.popen('vcgencmd measure_temp').readline()
-    temp =(res.replace("temp=","").replace("'C\n",""))
+    res = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
+    temp = res/1000
     #print("temp is {0}".format(temp)) # Uncomment for testing
     return temp
 
