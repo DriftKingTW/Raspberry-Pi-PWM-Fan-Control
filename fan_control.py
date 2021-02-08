@@ -26,7 +26,7 @@ outside_dead_band_higher = True
 # Get CPU's temperature
 def getCpuTemperature():
     res = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
-    temp = res/1000
+    temp = float(res)/1000
     #print("temp is {0}".format(temp)) # Uncomment for testing
     return temp
 
