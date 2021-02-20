@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import RPi.GPIO as GPIO
 import time
@@ -12,17 +12,21 @@ WAIT_TIME = 1           # [s] Time to wait between each refresh
 PWM_FREQ = 25000        # [Hz] 25kHz for Noctua PWM control
 
 # Configurable temperature and fan speed
-MIN_TEMP = 40
+MIN_TEMP = 45
+MIN_TEMP_DEAD_BAND = 5
 MAX_TEMP = 70
-FAN_LOW = 40
+FAN_LOW = 1
 FAN_HIGH = 100
 FAN_OFF = 0
 FAN_MAX = 100
 
+# Variable definition
+outside_dead_band_higher = True
+
 # Get CPU's temperature
 def getCpuTemperature():
-    res = os.popen('vcgencmd measure_temp').readline()
-    temp =(res.replace("temp=","").replace("'C\n",""))
+    res = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
+    temp = float(res)/1000
     #print("temp is {0}".format(temp)) # Uncomment for testing
     return temp
 
@@ -32,23 +36,33 @@ def setFanSpeed(speed):
     return()
 
 # Handle fan speed
-def handleFanSpeed():
-    temp = float(getCpuTemperature())
-    # Turn off the fan if temperature is below MIN_TEMP
-    if temp < MIN_TEMP:
+def handleFanSpeed(temperature, outside_dead_band_higher):
+    # Turn off the fan if lower than lower dead band 
+    if outside_dead_band_higher == False:
         setFanSpeed(FAN_OFF)
         #print("Fan OFF") # Uncomment for testing
+        return
+    # Run fan at calculated speed if being in or above dead zone not having passed lower dead band    
+    elif outside_dead_band_higher == True and temperature < MAX_TEMP:
+        step = float(FAN_HIGH - FAN_LOW)/float(MAX_TEMP - MIN_TEMP)  
+        temperature -= MIN_TEMP
+        setFanSpeed(FAN_LOW + ( round(temperature) * step ))
+        #print(FAN_LOW + ( round(temperature) * step )) # Uncomment for testing
+        return
     # Set fan speed to MAXIMUM if the temperature is above MAX_TEMP
-    elif temp > MAX_TEMP:
+    elif temperature > MAX_TEMP:
         setFanSpeed(FAN_MAX)
         #print("Fan MAX") # Uncomment for testing
-    # Caculate dynamic fan speed
+        return
     else:
-        step = float(FAN_HIGH - FAN_LOW)/float(MAX_TEMP - MIN_TEMP)  
-        temp -= MIN_TEMP
-        setFanSpeed(FAN_LOW + ( round(temp) * step ))
-        #print(FAN_LOW + ( round(temp) * step )) # Uncomment for testing
-    return ()
+        return
+
+# Handle dead zone bool
+def handleDeadZone(temperature):
+    if temperature > (MIN_TEMP + MIN_TEMP_DEAD_BAND/2):
+        return True
+    elif temperature < (MIN_TEMP - MIN_TEMP_DEAD_BAND/2):
+        return False
 
 try:
     # Setup GPIO pin
@@ -56,10 +70,12 @@ try:
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
     fan = GPIO.PWM(FAN_PIN,PWM_FREQ)
-    setFanSpeed(FAN_OFF)
+    # setFanSpeed(FAN_OFF)
     # Handle fan speed every WAIT_TIME sec
     while True:
-        handleFanSpeed()
+        temp = float(getCpuTemperature())
+        outside_dead_band_higher = handleDeadZone(temp)
+        handleFanSpeed(temp, outside_dead_band_higher)
         time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt
