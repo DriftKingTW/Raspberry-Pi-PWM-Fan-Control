@@ -5,6 +5,7 @@ import time
 import signal
 import sys
 import os
+import atexit
 
 # Configuration
 FAN_PIN = 18            # BCM pin used to drive PWM fan
@@ -64,7 +65,7 @@ def handleDeadZone(temperature):
     elif temperature < (MIN_TEMP - MIN_TEMP_DEAD_BAND/2):
         return False
 
-# Reset fan to 100% by cleaning GPIO ports
+# Reset fan to full speed by cleaning GPIO ports
 def resetFan():
     GPIO.cleanup() # resets all GPIO ports used by this function
 
