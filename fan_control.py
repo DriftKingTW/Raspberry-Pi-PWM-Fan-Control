@@ -5,6 +5,7 @@ import time
 import signal
 import sys
 import os
+import atexit
 
 # Configuration
 FAN_PIN = 18            # BCM pin used to drive PWM fan
@@ -84,3 +85,5 @@ try:
 
 except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt
     resetFan()
+
+atexit.register(resetFan)
