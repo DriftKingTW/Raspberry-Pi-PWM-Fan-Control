@@ -64,6 +64,10 @@ def handleDeadZone(temperature):
     elif temperature < (MIN_TEMP - MIN_TEMP_DEAD_BAND/2):
         return False
 
+# Reset fan to 100% by cleaning GPIO ports
+def resetFan():
+    GPIO.cleanup() # resets all GPIO ports used by this function
+
 try:
     # Setup GPIO pin
     GPIO.setwarnings(False)
@@ -79,5 +83,4 @@ try:
         time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt
-    setFanSpeed(FAN_HIGH)
-    #GPIO.cleanup() # resets all GPIO ports used by this function
+    resetFan()
