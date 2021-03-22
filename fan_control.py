@@ -10,7 +10,7 @@ import atexit
 # Configuration
 FAN_PIN = 18            # BCM pin used to drive PWM fan
 WAIT_TIME = 1           # [s] Time to wait between each refresh
-PWM_FREQ = 25000        # [Hz] 25kHz for Noctua PWM control
+PWM_FREQ = 25           # [kHz] 25kHz for Noctua PWM control
 
 # Configurable temperature and fan speed
 MIN_TEMP = 45
