@@ -24,7 +24,7 @@ def getCpuTemperature():
         return float(f.read()) / 1000
 
 
-def handleFanSpeed(temperature, outside_dead_band_higher):
+def handleFanSpeed(fan, temperature, outside_dead_band_higher):
 
     if not outside_dead_band_higher:
         fan.start(FAN_OFF)
@@ -51,7 +51,7 @@ try:
     while True:
         temp = getCpuTemperature()
         outside_dead_band_higher = handleDeadZone(temp)
-        handleFanSpeed(temp, outside_dead_band_higher)
+        handleFanSpeed(fan, temp, outside_dead_band_higher)
         time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt:
