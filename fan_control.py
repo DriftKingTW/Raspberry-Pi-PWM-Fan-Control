@@ -21,39 +21,29 @@ outside_dead_band_higher = True
 
 def getCpuTemperature():
     res = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
-    temp = float(res)/1000
-    return temp
+    return float(res)/1000
 
 
 def setFanSpeed(speed):
     fan.start(speed)
-    return()
 
 
 def handleFanSpeed(temperature, outside_dead_band_higher):
 
     if not outside_dead_band_higher:
         setFanSpeed(FAN_OFF)
-        return
 
     elif outside_dead_band_higher and temperature < MAX_TEMP:
         step = float(FAN_HIGH - FAN_LOW)/float(MAX_TEMP - MIN_TEMP)
         temperature -= MIN_TEMP
         setFanSpeed(FAN_LOW + (round(temperature) * step))
-        return
 
     elif temperature > MAX_TEMP:
         setFanSpeed(FAN_MAX)
-        return
-    else:
-        return
 
 
 def handleDeadZone(temperature):
-    if temperature > (MIN_TEMP + MIN_TEMP_DEAD_BAND/2):
-        return True
-    elif temperature < (MIN_TEMP - MIN_TEMP_DEAD_BAND/2):
-        return False
+    return temperature > (MIN_TEMP + MIN_TEMP_DEAD_BAND/2)
 
 
 def resetFan():
