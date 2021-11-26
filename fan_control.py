@@ -24,30 +24,22 @@ def getCpuTemperature():
         return float(f.read()) / 1000
 
 
-def setFanSpeed(speed):
-    fan.start(speed)
-
-
 def handleFanSpeed(temperature, outside_dead_band_higher):
 
     if not outside_dead_band_higher:
-        setFanSpeed(FAN_OFF)
+        fan.start(FAN_OFF)
 
     elif outside_dead_band_higher and temperature < MAX_TEMP:
         step = float(FAN_HIGH - FAN_LOW)/float(MAX_TEMP - MIN_TEMP)
         temperature -= MIN_TEMP
-        setFanSpeed(FAN_LOW + (round(temperature) * step))
+        fan.start(FAN_LOW + (round(temperature) * step))
 
     elif temperature > MAX_TEMP:
-        setFanSpeed(FAN_MAX)
+        fan.start(FAN_MAX)
 
 
 def handleDeadZone(temperature):
     return temperature > (MIN_TEMP + MIN_TEMP_DEAD_BAND/2)
-
-
-def resetFan():
-    GPIO.cleanup()  # resets all GPIO ports used by this function
 
 
 try:
@@ -66,4 +58,4 @@ except KeyboardInterrupt:
     pass
 
 finally:
-    resetFan()
+    GPIO.cleanup()
