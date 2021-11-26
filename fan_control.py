@@ -23,7 +23,6 @@ outside_dead_band_higher = True
 def getCpuTemperature():
     res = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
     temp = float(res)/1000
-    # print("temp is {0}".format(temp)) # Uncomment for testing
     return temp
 
 
@@ -36,19 +35,16 @@ def handleFanSpeed(temperature, outside_dead_band_higher):
 
     if not outside_dead_band_higher:
         setFanSpeed(FAN_OFF)
-        # print("Fan OFF") # Uncomment for testing
         return
 
     elif outside_dead_band_higher and temperature < MAX_TEMP:
         step = float(FAN_HIGH - FAN_LOW)/float(MAX_TEMP - MIN_TEMP)
         temperature -= MIN_TEMP
         setFanSpeed(FAN_LOW + (round(temperature) * step))
-        # print(FAN_LOW + ( round(temperature) * step )) # for testing
         return
 
     elif temperature > MAX_TEMP:
         setFanSpeed(FAN_MAX)
-        # print("Fan MAX") # Uncomment for testing
         return
     else:
         return
@@ -70,7 +66,6 @@ try:
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
     fan = GPIO.PWM(FAN_PIN, PWM_FREQ)
-    # setFanSpeed(FAN_OFF)
     while True:
         temp = float(getCpuTemperature())
         outside_dead_band_higher = handleDeadZone(temp)
