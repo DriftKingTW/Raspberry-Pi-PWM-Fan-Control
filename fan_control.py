@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 import RPi.GPIO as GPIO
 import time
-import os
 import atexit
 
 FAN_PIN = 18            # BCM pin used to drive PWM fan
@@ -20,8 +19,8 @@ outside_dead_band_higher = True
 
 
 def getCpuTemperature():
-    res = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
-    return float(res)/1000
+    with open('/sys/class/thermal/thermal_zone0/temp') as f:
+        return float(f.read()) / 1000
 
 
 def setFanSpeed(speed):
