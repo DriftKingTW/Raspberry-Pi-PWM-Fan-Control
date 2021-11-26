@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 import RPi.GPIO as GPIO
 import time
-import atexit
 
 FAN_PIN = 18            # BCM pin used to drive PWM fan
 WAIT_TIME = 1           # [s] Time to wait between each refresh
@@ -61,6 +60,7 @@ try:
         time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt:
-    resetFan()
+    pass
 
-atexit.register(resetFan)
+finally:
+    resetFan()
