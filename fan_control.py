@@ -55,7 +55,7 @@ try:
     GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
     fan = GPIO.PWM(FAN_PIN, PWM_FREQ)
     while True:
-        temp = float(getCpuTemperature())
+        temp = getCpuTemperature()
         outside_dead_band_higher = handleDeadZone(temp)
         handleFanSpeed(temp, outside_dead_band_higher)
         time.sleep(WAIT_TIME)
