@@ -4,9 +4,17 @@ import time
 import signal
 import sys
 
+# The Noctua PWM control actually wants 25 kHz (kilo!), see page 6 on:
+# https://noctua.at/pub/media/wysiwyg/Noctua_PWM_specifications_white_paper.pdf
+# However, the RPi.GPIO library causes high CPU usage when using high
+# frequencies - probably because it can currently only do software PWM.
+# So we set a lower frequency in the 10s of Hz here. You should expect that
+# this value doesn't work very well and adapt it to what works in your setup.
+# We will work on the issue and try to use hardware PWM in the future:
+PWM_FREQ = 25           # [Hz] PWM frequency
+
 FAN_PIN = 18            # BCM pin used to drive PWM fan
 WAIT_TIME = 1           # [s] Time to wait between each refresh
-PWM_FREQ = 25           # [Hz] 25Hz for Noctua PWM control
 
 OFF_TEMP = 40           # [°C] temperature below which to stop the fan
 MIN_TEMP = 45           # [°C] temperature above which to start the fan
