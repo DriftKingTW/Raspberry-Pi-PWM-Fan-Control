@@ -1,17 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import RPi.GPIO as GPIO
+import pigpio
+pi = pigpio.pi()
+
 import time
 
 # Pin configuration
 TACH = 24       # Fan's tachometer output pin
 PULSE = 2       # Noctua fans puts out two pluses per revolution
-WAIT_TIME = 1   # [s] Time to wait between each refresh
+WAIT_TIME = 15   # [s] Time to wait between each refresh
 
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(TACH, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Pull up to 3.3V
 
 # Setup variables
 t = time.time()
@@ -19,12 +17,12 @@ rpm = 0
 
 
 # Caculate pulse frequency and RPM
-def fell(n):
+def fell(m,n,o):
     global t
     global rpm
 
     dt = time.time() - t
-    if dt < 0.005:
+    if dt < 0.002:
         return  # Reject spuriously short pulses
 
     freq = 1 / dt
@@ -33,13 +31,13 @@ def fell(n):
 
 
 # Add event to detect
-GPIO.add_event_detect(TACH, GPIO.FALLING, fell)
+pi.callback(TACH, pigpio.FALLING_EDGE, fell)
 
 try:
     while True:
         print("%.f RPM" % rpm)
         rpm = 0
-        time.sleep(1)   # Detect every second
+        time.sleep(WAIT_TIME)
 
-except KeyboardInterrupt:   # trap a CTRL+C keyboard interrupt
-    GPIO.cleanup()          # resets all GPIO ports used by this function
+except KeyboardInterrupt: # trap a CTRL+C keyboard interrupt
+    pi.clear_bank_1(TACH) # Reset TACH-Pin
