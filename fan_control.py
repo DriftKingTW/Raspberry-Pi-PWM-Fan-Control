@@ -1,17 +1,13 @@
 #! /usr/bin/env python3
-import RPi.GPIO as GPIO
+
+import pigpio
 import time
 import signal
 import sys
 
-# The Noctua PWM control actually wants 25 kHz (kilo!), see page 6 on:
-# https://noctua.at/pub/media/wysiwyg/Noctua_PWM_specifications_white_paper.pdf
-# However, the RPi.GPIO library causes high CPU usage when using high
-# frequencies - probably because it can currently only do software PWM.
-# So we set a lower frequency in the 10s of Hz here. You should expect that
-# this value doesn't work very well and adapt it to what works in your setup.
-# We will work on the issue and try to use hardware PWM in the future:
-PWM_FREQ = 25           # [Hz] PWM frequency
+pi = pigpio.pi()
+
+PWM_FREQ = 25000        # 25kHZ
 
 FAN_PIN = 18            # BCM pin used to drive PWM fan
 WAIT_TIME = 1           # [s] Time to wait between each refresh
@@ -26,32 +22,33 @@ FAN_MAX = 100
 FAN_GAIN = float(FAN_HIGH - FAN_LOW) / float(MAX_TEMP - MIN_TEMP)
 
 
-def getCpuTemperature():
-    with open('/sys/class/thermal/thermal_zone0/temp') as f:
-        return float(f.read()) / 1000
+def getCpuTemperature ():
+        with open('/sys/class/thermal/thermal_zone0/temp') as f:
+                return float(f.read()) / 1000
+
+def controlFan(frequency):
+        pi.hardware_PWM(FAN_PIN, PWM_FREQ, frequency )
 
 
-def handleFanSpeed(fan, temperature):
-    if temperature > MIN_TEMP:
-        delta = min(temperature, MAX_TEMP) - MIN_TEMP
-        fan.start(FAN_LOW + delta * FAN_GAIN)
-
-    elif temperature < OFF_TEMP:
-        fan.start(FAN_OFF)
-
+def handleFanSpeed(temperature):
+        if temperature >= MAX_TEMP:
+                controlFan(FAN_HIGH * 10000)
+        elif temperature >= MIN_TEMP:
+                delta = temperature - MIN_TEMP
+                fanspeed = int(FAN_LOW * 10000 + delta * FAN_GAIN * 10000)
+                controlFan(fanspeed)
+        elif temperature < OFF_TEMP:
+                controlFan(FAN_OFF)
 
 try:
     signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
-    fan = GPIO.PWM(FAN_PIN, PWM_FREQ)
     while True:
-        handleFanSpeed(fan, getCpuTemperature())
+        handleFanSpeed(getCpuTemperature())
         time.sleep(WAIT_TIME)
 
-except KeyboardInterrupt:
-    pass
 
-finally:
-    GPIO.cleanup()
+except KeyboardInterrupt:
+        controlFan(FAN_HIGH *  10000)
+        pi.stop()
+
+    
